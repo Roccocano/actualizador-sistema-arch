@@ -1,75 +1,24 @@
-# actualizador-sistema-arch
-Script para actualizar paquetes en Arch Linux, incluyendo soporte para pacman, yay, pamac, Flatpak y Snap.
-#!/bin/bash
+# Actualizador de Sistema para Arch Linux
 
-# Comprobar si pamac está instalado
-if ! command -v pamac &> /dev/null; then
-    echo "pamac no está instalado. Instalando pamac..."
-    sudo pacman -Syu pamac --noconfirm
-else
-    echo "Pamac ya está instalado"
-fi
+Este script en Bash automatiza completamente el proceso de actualización de paquetes en sistemas basados en Arch Linux. Integra herramientas como `pacman`, `yay`, `pamac`, `flatpak` y `snap`, y realiza tareas de mantenimiento como limpieza de caché, eliminación de paquetes huérfanos y optimización de logs del sistema.
 
-# Actualizar repositorios e información de paquetes con pacman
-sudo pacman -Sy archlinux-keyring --noconfirm && sudo pacman -Su --noconfirm
+## 🔧 Requisitos
 
-# Actualizar paquetes del sistema con pacman
-sudo pacman -Syu --noconfirm
+- Sistema operativo basado en Arch Linux
+- Acceso a `sudo`
+- Conexión a Internet
 
-# Comprobar si yay está instalado
-if ! command -v yay &> /dev/null; then
-    echo "yay no está instalado. Instalando yay..."
-    git clone https://aur.archlinux.org/yay.git
-    cd yay
-    makepkg -si --noconfirm
-    cd ..
-fi
+## 🛠 Funcionalidades
 
-# Actualizar paquetes del AUR con yay
-yay -Syu --noconfirm
-sudo pamac update --aur --no-confirm
-yay -Sua
+- Instalación automática de `pamac`, `yay`, `flatpak` y `snapd` si no están presentes.
+- Actualización de paquetes del sistema con `pacman`, `yay` y `pamac`.
+- Actualización de paquetes Flatpak y Snap.
+- Eliminación de paquetes huérfanos.
+- Limpieza de cachés de `pacman` y `yay`.
+- Reducción del tamaño de logs del sistema (`journalctl`).
 
-# Actualizar paquetes con pamac
-sudo pamac update --no-confirm
-sudo pamac upgrade --no-confirm
+## 🚀 Uso
 
-# Verificar si Flatpak está instalado
-if ! command -v flatpak &> /dev/null; then
-    echo "Flatpak no está instalado. Instalando Flatpak..."
-    sudo pacman -Syu flatpak --noconfirm
-else
-    echo "Flatpak ya está instalado"
-    # Actualizar Flatpak (repositorios y aplicaciones)
-    flatpak update -y
-fi
-
-# Verificar si Snap está instalado
-if ! command -v snap &> /dev/null; then
-    echo "Snap no está instalado. Instalando Snap..."
-    sudo pacman -Syu snapd --noconfirm
-    sudo systemctl enable --now snapd.socket
-else
-    echo "Snap ya está instalado"
-    # Actualizar Snap (si es necesario)
-    sudo snap refresh
-fi
-
-# Eliminar paquetes huérfanos
-orphans=$(pacman -Qdtq)
-if [ -n "$orphans" ]; then
-    sudo pacman -Rns $orphans --noconfirm
-else
-    echo "No hay paquetes huérfanos para eliminar."
-fi
-
-# Limpiar cache de pacman y yay
-sudo pacman -Scc --noconfirm
-yay -Yc --noconfirm
-
-# Limpiar registros del sistema
-sudo journalctl --vacuum-size=50M
-sudo journalctl --vacuum-time=2weeks
-
-# Optimización de rendimiento (opcional)
-# sudo nano /etc/systemd/journald.conf
+```bash
+chmod +x Actualizar.sh
+./Actualizar.sh
